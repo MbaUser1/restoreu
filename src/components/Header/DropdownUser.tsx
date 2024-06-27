@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,14 +8,40 @@ import {
   faSignOutAlt,
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
+import { type } from "os";
 
-const DropdownUser = () => {
+interface DropdownUserProps {
+  nom: string;
+  email: string;
+  telephone: number;
+  role: string;
+}
+
+const DropdownUser: React.FC<DropdownUserProps> = ({
+  nom,
+  email,
+  telephone,
+  role,
+}) => {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const data = await signOut({ redirect: false, callbackUrl: "/" });
+    if (data.error) {
+      console.error("Déconnexion échouée :", data.error);
+    } else {
+      // Vérifie que le router est disponible avant de faire la redirection
+
+      router.push("/");
+      console.error("Déconnexion");
+    }
+  };
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
 
-  // close on click outside
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
       if (!dropdown.current) return;
@@ -22,15 +49,15 @@ const DropdownUser = () => {
         !dropdownOpen ||
         dropdown.current.contains(target) ||
         trigger.current.contains(target)
-      )
+      ) {
         return;
+      }
       setDropdownOpen(false);
     };
     document.addEventListener("click", clickHandler);
     return () => document.removeEventListener("click", clickHandler);
   });
 
-  // close if the esc key is pressed
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
       if (!dropdownOpen || keyCode !== 27) return;
@@ -50,9 +77,9 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Thomas Anree
+            {nom}
           </span>
-          <span className="block text-xs">UX Designer</span>
+          <span className="block text-xs"> {role}</span>
         </span>
 
         <span className="h-12 w-12 rounded-full">
@@ -90,15 +117,16 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <Link href="/auth/signup">
-          <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
-            <FontAwesomeIcon
-              icon={faSignOutAlt}
-              style={{ transform: "scaleX(-1)" }}
-            />
-            Log Out
-          </button>
-        </Link>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+        >
+          <FontAwesomeIcon
+            icon={faSignOutAlt}
+            style={{ transform: "scaleX(-1)" }}
+          />
+          Log Out
+        </button>
       </div>
       {/* <!-- Dropdown End --> */}
     </div>
