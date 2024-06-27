@@ -452,7 +452,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
           </div>
           <div>
             <h1 className="mb-4 text-sm font-semibold text-bodydark2">
-              BESOIN D'AIDE
+              BESOIN D&aposAIDE
             </h1>
 
             <ul className="mb-6 flex flex-col gap-1.5">

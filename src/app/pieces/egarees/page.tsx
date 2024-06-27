@@ -47,7 +47,7 @@ export default function Page({
     }
 
     fetchData();
-  }, [query, currentPage]);
+  }, [query, currentPage, session?.user?.id]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;

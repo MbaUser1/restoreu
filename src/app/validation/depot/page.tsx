@@ -52,7 +52,7 @@ export default function Page({
     }
 
     fetchData();
-  }, [query, currentPage]);
+  }, [query, currentPage, session?.user?.point_depot]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
