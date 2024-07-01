@@ -2,7 +2,7 @@
 
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Search from "@/components/Datatable/search";
-import Modal from "@/components/Modal/Modal";
+
 import Table from "@/components/Datatable/table";
 import { Create } from "@/components/Datatable/buttons";
 import { useState, useEffect } from "react";
@@ -19,7 +19,7 @@ import { useSession } from "next-auth/react";
 // ];
 const fields = [
   { key: "#", label: "#" },
-  { key: "photo", label: "photo" },
+  { key: "photo", label: "photo", isImage: true },
   { key: "categorie", label: "Categories" },
   { key: "arrondissement", label: "Arrondissement" },
   { key: "date", label: "Date", isDate: true },
@@ -78,7 +78,6 @@ export default function Page({
         <div className="mt-5 flex w-full justify-center">
           {/* <Pagination totalPages={totalPages} /> */}
         </div>
-        <Modal />
       </div>
     </>
   );

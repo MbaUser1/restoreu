@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   faPlus,
@@ -16,6 +16,8 @@ import {
 import Modal from "@/components/Modal/Modal";
 import Modal_delete from "@/components/Modal/Modal_delete";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function DataTable({
   items,
@@ -32,6 +34,35 @@ export default function DataTable({
   }[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedPId, setSelectedPId] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [piece, setPiece] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(`/api/piece?id=${selectedPId}`);
+        const data = await response.json();
+        console.log("Response data:", data);
+        if (data.success) {
+          setPiece(data.data);
+        } else {
+          setError(data.message);
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (selectedPId) {
+      fetchData();
+    }
+  }, [selectedPId]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -42,16 +73,33 @@ export default function DataTable({
       if (!response.ok) {
         throw new Error("Erreur lors de la suppression de la déclaration");
       }
+      toast.success("Déclaration supprimée");
+      setSelectedId(null);
 
-      console.log("Déclaration supprimée avec succès");
+      router.push("/pieces/egarees");
     } catch (error) {
-      console.error("Erreur lors de la suppression de la déclaration:", error);
+      toast.error("Oups, quelque chose s'est mal passé, essayez encore");
     }
   };
+  // const handleWiew = async (id: string) => {
+  //   try {
+  //     const response = await fetch(`/api/piece?id=${id}`, {
+  //       method: "GET",
+  //     });
+  //     const data = await response.json();
+  //     if (data.success) {
+  //       setPiece(data.data);
+  //     } else {
+  //       toast.error("Oups, quelque chose s'est mal passé");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Oups, quelque chose s'est mal passé, essayez encore");
+  //   }
+  // };
 
   return (
     <div className="mt-6 flow-root">
-      <Modal />
+      <Modal piece={piece} />
       <Modal_delete id={selectedId} onDelete={handleDelete} />
       <div className="inline-block min-w-full align-middle">
         <div className="bg-gray-50 rounded-lg p-2 md:pt-0">
@@ -103,8 +151,9 @@ export default function DataTable({
                   <div className="flex justify-end gap-2">
                     {/* <SeeAll id={item.id} /> */}
                     <button
-                      className="hover:bg-gray-100 rounded-md border p-2"
+                      className="hover:bg-gray-100 rounded-md border p-2  text-success"
                       onClick={() => {
+                        setSelectedPId(item.PieceId);
                         document.getElementById("my_modal_2").showModal();
                       }}
                     >
@@ -120,7 +169,7 @@ export default function DataTable({
                     </Link>
                     {/* <Delete id={item.id} /> */}
                     <button
-                      className="hover:bg-gray-100 rounded-md border p-2"
+                      className="hover:bg-gray-100 rounded-md border p-2  text-danger"
                       onClick={() => {
                         setSelectedId(item.id);
                         document.getElementById("my_modal_delete").showModal();
@@ -188,11 +237,13 @@ export default function DataTable({
                     <div className="flex justify-end gap-3">
                       {/* <SeeAll id={item.id} /> */}
                       <button
-                        className="hover:bg-gray-100 rounded-md border p-2"
+                        className="hover:bg-gray-100 rounded-md border p-2 text-success"
                         onClick={() => {
+                          setSelectedPId(item.PieceID);
                           document.getElementById("my_modal_2").showModal();
                         }}
                       >
+                        {item.pieceID}
                         <span className="sr-only">View</span>
                         <FontAwesomeIcon icon={faEye} className="w-5" />
                       </button>
@@ -205,7 +256,7 @@ export default function DataTable({
                       </Link>
                       {/* <Delete id={item.id} /> */}
                       <button
-                        className="hover:bg-gray-100 rounded-md border p-2"
+                        className="hover:bg-gray-100 rounded-md border p-2  text-danger"
                         onClick={() => {
                           setSelectedId(item.id);
                           document

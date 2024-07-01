@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import toast from "react-hot-toast";
@@ -10,9 +10,18 @@ import { useRouter } from "next/navigation";
 const options = [
   { value: "acte de naissance", label: "Acte de naissance" },
   { value: "cni", label: "CNI" },
-  { value: "recepisé", label: "Recepisé" },
+  { value: "passeport", label: "PASSEPORT" },
+  { value: "récépissé", label: "Récépissé" },
+  { value: "diplome cep", label: "Diplôme CEP" },
+  { value: "diplome cap", label: "Diplôme CAP" },
+  { value: "diplome bepc", label: "Diplôme BEPC" },
+  { value: "diplome gce o", label: "Diplôme GCE O" },
+  { value: "diplome probatoire", label: "Diplôme PROBATOIRE" },
+  { value: "diplome gce a", label: "Diplôme GCE A" },
+  { value: "diplome BAC", label: "Diplôme BAC" },
   { value: "permis de conduire a", label: "Permis A" },
   { value: "permis de conduire B", label: "Permis B" },
+  { value: "permis de conduire c", label: "Permis C" },
   { value: "autres", label: "Autres" },
 ];
 const options2 = [
@@ -42,6 +51,12 @@ interface Donnees {
   num_piece: "";
   cni: "";
   userID: "";
+  nom: "";
+  prenom_p: "";
+  pnom_p: "";
+  mnom_p: "";
+  date_p: "";
+  lieu_p: "";
 }
 
 const FormLayout = () => {
@@ -52,7 +67,28 @@ const FormLayout = () => {
     formState: { errors },
   } = useForm<Donnees>();
   const [loading, setLoading] = useState(false);
+  const [categorie, setcategorie] = useState([]);
   const { data: session, status } = useSession();
+
+  //recuperation des categories
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch("/api/categ");
+        const data = await response.json();
+        if (data.success) {
+          setcategorie(data.data);
+        } else {
+          setError(data.message);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    }
+
+    fetchData();
+  }, []);
   //recuperation de l'id de l'utilisateur
   const userID = session?.user?.id;
   const router = useRouter();
@@ -120,9 +156,9 @@ const FormLayout = () => {
                     })}
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   >
-                    {options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
+                    {categorie.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.nom}
                       </option>
                     ))}
                   </select>
@@ -138,11 +174,9 @@ const FormLayout = () => {
                     Numéro de pièce
                   </label>
                   <input
-                    {...register("num_piece", {
-                      required: "Ce champ est obligatoire",
-                    })}
+                    {...register("num_piece", {})}
                     type="text" // Treat as string
-                    placeholder="Entrez l'id de pièce"
+                    placeholder="Entrez le numéro du document"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   />
                   {errors.num_piece && (
@@ -155,7 +189,8 @@ const FormLayout = () => {
               <div className="mb-2.5 flex flex-col gap-6 xl:flex-row">
                 <div className="w-full xl:w-1/2">
                   <label className="mb-2 block text-sm font-medium text-black dark:text-white">
-                    Où ?? <span className="text-meta-1">*</span>
+                    Où l avez-vous egaré ??{" "}
+                    <span className="text-meta-1">*</span>
                   </label>
                   <select
                     {...register("arrondissement", {
@@ -220,6 +255,112 @@ const FormLayout = () => {
                   {/* <div className="mb-6"></div> */}
                 </div>
               </div>
+
+              <div className=" mb-5 border-b border-stroke px-1.5 py-4 dark:border-strokedark">
+                <h3 className="font-medium text-black dark:text-white">
+                  INFORMATIONS DU DOCUMENT
+                </h3>
+              </div>
+              <div className="mb-2.5 flex flex-col gap-6 xl:flex-row">
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Nom <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    {...register("nom", {
+                      required: "Ce champ est obligatoire",
+                    })}
+                    type="text"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5  text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                  {errors.nom && (
+                    <small className="text-sm text-rose-600 ">
+                      {errors.nom.message}
+                    </small>
+                  )}
+                </div>
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Prenom <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    {...register("prenom_p", {
+                      required: "Ce champ est obligatoire",
+                    })}
+                    type="text"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                  {errors.prenom_p && (
+                    <small className="text-sm text-rose-600 ">
+                      {errors.prenom_p.message}
+                    </small>
+                  )}
+                </div>
+
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Nom du pere (facultatif)
+                  </label>
+                  <input
+                    {...register("pnom_p", {})}
+                    type="text"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Nom de la mere (facultatif)
+                  </label>
+                  <input
+                    {...register("mnom_p", {})}
+                    type="text"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                </div>
+              </div>
+              <div className="mb-2.5 flex flex-col gap-6 xl:flex-row">
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Date de naissance <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    {...register("date_p", {
+                      required: "Ce champ est obligatoire",
+                    })}
+                    type="date"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                  {errors.date_p && (
+                    <small className="text-sm text-rose-600 ">
+                      {errors.date_p.message}
+                    </small>
+                  )}
+                </div>
+
+                <div className="w-full xl:w-1/2">
+                  <label className="mb-2 block text-sm font-medium text-black dark:text-white">
+                    Lieu de naissance <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    {...register("lieu_p", {
+                      required: "Ce champ est obligatoire",
+                    })}
+                    type="text"
+                    placeholder=""
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
+                  {errors.lieu_p && (
+                    <small className="text-sm text-rose-600 ">
+                      {errors.lieu_p.message}
+                    </small>
+                  )}
+                </div>
+              </div>
               <div className="w-full xl:w-1/2">
                 <input
                   {...register("userID", {
@@ -227,7 +368,7 @@ const FormLayout = () => {
                   })}
                   value={userID}
                   type="hidden"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />
                 <input
                   {...register("type", {
@@ -235,7 +376,7 @@ const FormLayout = () => {
                   })}
                   value="egare"
                   type="hidden"
-                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent px-4 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />
               </div>
 

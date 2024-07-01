@@ -42,7 +42,7 @@ model Utilisateur {
   dateModif       DateTime @updatedAt
   Declaration Declaration[]
   Lieu_depot Lieu_depot[]
-  Piece Piece[]
+  
 }
 model Lieu_depot{
   id String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -71,6 +71,9 @@ model Declaration{
   deposer Deposer @default(n)
   user Utilisateur @relation(fields: [userID], references: [id])
   userID String @db.ObjectId
+  Piece     Piece @relation(fields: [PieceID], references: [id])
+  PieceID   String @db.ObjectId 
+  
    
 }
 model Categorie { 
@@ -81,10 +84,34 @@ model Categorie {
 model Piece {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   num_piece       String
+  nom             String
+  prenom          String
+  nom_pere        String?
+  nom_mere        String?
+  nee_le          String
+  lieu            String
   status          String
-  categorie Categorie @relation(fields: [CategorieID], references: [id])
-  CategorieID String @db.ObjectId
-  user Utilisateur @relation(fields: [userID], references: [id])
-  userID String @db.ObjectId
+  categorie       Categorie @relation(fields: [CategorieID], references: [id])
+  CategorieID     String    @db.ObjectId
+  Declaration Declaration[]
+  
 }
+
+
+// model Piece {
+//   id          Int      @id @default(autoincrement())
+//   num_piece   String?
+//   nom         String?
+//   prenom      String?
+//   nom_pere    String?
+//   nom_mere    String?
+//   nee_le      DateTime?
+//   lieu        String?
+//   status      String?
+//   categorie   Categorie @relation(fields: [CategorieID], references: [id])
+//   CategorieID String
+//   user        Utilisateur      @relation(fields: [userID], references: [id])
+//   userID      String
+// }
+
 

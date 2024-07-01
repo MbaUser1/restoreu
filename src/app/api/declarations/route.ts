@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient, TypeDeclaration } from "@prisma/client";
-
+import db from "@/lib/db";
 const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
-    console.log("POST request received");
-
     const {
       type,
       categorie,
@@ -16,37 +14,70 @@ export async function POST(request: Request) {
       num_piece,
       cni,
       userID,
+      nom,
+      prenom_p,
+      pnom_p,
+      mnom_p,
+      date_p,
+      lieu_p,
     } = await request.json();
-
-    // Assurez-vous de gérer les IDs utilisateur correctement
-
-    const newDeclaration = await prisma.Declaration.create({
+    const status = "p";
+    const newPiece = await db.piece.create({
       data: {
-        type: type as TypeDeclaration,
-        categorie,
-        date: new Date(date),
-        arrondissement,
-        circonstance,
-        lieu_de_depot,
         num_piece,
-        cni,
-        userID,
+        nom,
+        prenom: prenom_p,
+        nom_pere: pnom_p,
+        nom_mere: mnom_p,
+        nee_le: date_p,
+        lieu: lieu_p,
+        status,
+        CategorieID: categorie,
       },
     });
 
-    return NextResponse.json(
-      {
-        data: newDeclaration,
-        message: "Déclaration ajoutée avec succès",
-      },
-      { status: 201 },
-    );
+    try {
+      // Assurez-vous de gérer les IDs utilisateur correctement
+      const newDeclaration = await prisma.Declaration.create({
+        data: {
+          type: type as TypeDeclaration,
+          categorie,
+          date: new Date(date),
+          arrondissement,
+          circonstance,
+          lieu_de_depot,
+          num_piece,
+          cni,
+          //userID,
+          user: { connect: { id: userID } },
+          //PieceID: newPiece.id,
+          Piece: { connect: { id: newPiece.id } },
+        },
+      });
+
+      return NextResponse.json(
+        {
+          data: newDeclaration,
+          message: "Déclaration ajoutée avec succès",
+        },
+        { status: 201 },
+      );
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de déclaration:", error);
+      return NextResponse.json(
+        {
+          data: null,
+          message: "Erreur lors de l'ajout de déclaration essayer encore",
+        },
+        { status: 500 },
+      );
+    }
   } catch (error) {
-    console.error("Erreur lors de l'ajout de déclaration:", error);
+    console.error("Erreur lors de la création de la pièce:", error);
     return NextResponse.json(
       {
         data: null,
-        message: "Erreur lors de l'ajout de déclaration essayer encore",
+        message: "Erreur lors de la création de la pièce essayer encore",
       },
       { status: 500 },
     );
@@ -159,7 +190,7 @@ export async function DELETE(request: NextRequest) {
       {
         success: true,
       },
-      { status: 204 },
+      { status: 200 },
     );
   } catch (error) {
     console.error("Erreur lors de la suppression de la déclaration:", error);
