@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    // autres options...
+    "baseUrl": ".",
+
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -26,9 +29,10 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
+    "api/**/*.ts",
     "src/components/signup/page.tsx",
     "src/lib/authOptions.ts",
-    "src/app/api/auth/[...nextauth]/route.js",
+    "src/app/api/auth/[...nextauth]/route.ts",
     "src/app/api/point_depot/route.ts"
   ],
   "exclude": ["node_modules"]

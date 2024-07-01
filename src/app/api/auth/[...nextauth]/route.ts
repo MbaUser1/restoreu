@@ -1,11 +1,17 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
+import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-
-import { compare } from "bcrypt";
 import db from "@/lib/db";
 // import { UserRole } from "@prisma/client";
-export const authOptions = {
+
+interface Credentials {
+  email: string;
+  password: string;
+  role: string;
+}
+
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
@@ -22,40 +28,35 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
         role: { label: "Depot", type: "string" },
       },
-      async authorize(credentials) {
+      async authorize(credentials: Credentials | undefined) {
         try {
-          console.log("Authorize function recieved credentials:", credentials);
-          // Check if user credentials are they are Not empty
-          if (
-            !credentials?.email ||
-            !credentials?.password ||
-            !credentials?.role
-          ) {
-            throw { error: "No Inputs Found", status: 401 };
+          console.log("Authorize function received credentials:", credentials);
+
+          // Check if user credentials are not empty
+          if (!credentials?.email || !credentials?.password || !credentials?.role) {
+            throw new Error("No Inputs Found");
           }
           console.log("Passed Check 1 ");
-          //Check if user exists
+
+          // Check if user exists
           const existingUser = await db.utilisateur.findUnique({
             where: { email: credentials.email, role: credentials.role },
             include: { Lieu_depot: true },
           });
           if (!existingUser) {
             console.log("No user found");
-            throw { error: "No user found", status: 401 };
+            throw new Error("No user found");
           }
-
           console.log("Passed Check 2");
 
-          //Check if Password is correct
-          const passwordMatch = await compare(
-            credentials.password,
-            existingUser.motDePasseHache,
-          );
+          // Check if password is correct
+          const passwordMatch = await compare(credentials.password, existingUser.motDePasseHache);
           if (!passwordMatch) {
             console.log("Password incorrect");
-            throw { error: "Password Incorrect", status: 401 };
+            throw new Error("Password Incorrect");
           }
           console.log("Pass 3 Checked");
+
           const user = {
             id: existingUser.id,
             nom: existingUser.nom,
@@ -65,13 +66,12 @@ export const authOptions = {
             image: existingUser.image,
             point_depot: existingUser.Lieu_depot[0]?.id || null,
           };
-          //
 
           return user;
         } catch (error) {
-          console.log("aLL Failed");
-          console.log(error);
-          throw { error: "Something went wrong", status: 401 };
+          console.log("Authorization failed");
+          console.error(error);
+          throw new Error("Something went wrong");
         }
       },
     }),
@@ -79,16 +79,15 @@ export const authOptions = {
   callbacks: {
     async session({ session, token }) {
       if (token) {
-        console.log(`token:${token} in session`);
-        session.user.id = token.id;
-        session.user.nom = token.nom;
-        session.user.email = token.email;
-        session.user.telephone = token.telephone;
-        session.user.role = token.role;
-        session.user.image = token.image;
-        session.user.point_depot = token.point_depot;
+        session.user.id = token.id as string;
+        session.user.nom = token.nom as string;
+        session.user.email = token.email as string;
+        session.user.telephone = token.telephone as string;
+        session.user.role = token.role as string;
+        session.user.image = token.image as string;
+        session.user.point_depot = token.point_depot as string | null;
       }
-      console.log(`session:${session.user}`);
+      console.log(`session: ${JSON.stringify(session.user)}`);
       return session;
     },
     async jwt({ token, user }) {
@@ -101,7 +100,6 @@ export const authOptions = {
         token.image = user.image;
         token.point_depot = user.point_depot;
       }
-
       return token;
     },
   },
