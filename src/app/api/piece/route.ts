@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest) {
       categorie,
     } = await request.json();
 
-    const updatedDeclaration = await prisma.piece.update({
+    const updatedPiece = await prisma.piece.update({
       where: { id: String(id) },
       data: {
         num_piece,
@@ -66,10 +66,21 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    // const newDeclaration = await prisma.Declaration.findMany({
+    //   where: { PieceID: num_piece },
+    // });
+
+    // const updatedDeclaration = await prisma.Declaration.update({
+    //   where: { id: newDeclaration.id },
+    //   data: {
+    //     categorie,
+    //   },
+    // });
+
     return NextResponse.json(
       {
         success: true,
-        data: updatedDeclaration,
+        data: updatedPiece,
       },
       { status: 200 },
     );

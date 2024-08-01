@@ -21,7 +21,8 @@ const fields = [
   { key: "#", label: "#" },
   { key: "photo", label: "photo", isImage: true },
   { key: "categorie", label: "Categories" },
-  { key: "arrondissement", label: "Arrondissement" },
+  { key: "arrondissement", label: "Lieux" },
+  { key: "deposer", label: "Deposé ?", isStatus: true },
   { key: "date", label: "Date", isDate: true },
 ];
 

@@ -30,9 +30,10 @@ enum TypeDeclaration {
 model Utilisateur {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   nom             String?
+  prenom          String?
   email           String?  @unique
   image           String?
-  telephone       String
+  telephone       String   @unique
   motDePasseHache String
   motDePasse      String? //unhashed pass
   role            UserRole @default(utilisateur) // Default role is USER
@@ -61,7 +62,7 @@ model Declaration{
   id String   @id @default(auto()) @map("_id") @db.ObjectId
   type            TypeDeclaration
   categorie String
-  date DateTime 
+  date String 
   arrondissement String
   lieu_de_depot String?
   photo String ?
@@ -73,9 +74,8 @@ model Declaration{
   userID String @db.ObjectId
   Piece     Piece @relation(fields: [PieceID], references: [id])
   PieceID   String @db.ObjectId 
-  
-   
-}
+} 
+
 model Categorie { 
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   nom             String

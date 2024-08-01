@@ -7,6 +7,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+
   function handleSearch(term: string) {
     const params = new URLSearchParams(searchParams);
 
@@ -29,6 +30,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
         onChange={(e) => {
           handleSearch(e.target.value);
         }}
+        defaultValue={searchParams.get("query")?.toString()}
       />
       <FontAwesomeIcon
         icon={faSearch}

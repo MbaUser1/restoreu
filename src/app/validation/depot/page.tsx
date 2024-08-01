@@ -12,9 +12,8 @@ import { useSession } from "next-auth/react";
 const fields = [
   { key: "#", label: "#" },
   { key: "photo", label: "Photos", isImage: true },
-  { key: "num_piece", label: "N° piece" },
-  { key: "categorie", label: "Categorie" },
-  { key: "date", label: "Date" },
+  { key: "num_piece", label: "Numeros document" },
+  { key: "date", label: "Date", isDate: true },
   { key: "cni", label: "Trouveurs" },
   { key: "id", label: "N° confirmation" },
 ];

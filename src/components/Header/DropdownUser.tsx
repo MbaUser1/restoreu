@@ -9,20 +9,19 @@ import {
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
-import { type } from "os";
 
 interface DropdownUserProps {
   nom: string;
   email: string;
-  telephone: number;
   role: string;
+  img: string;
 }
 
 const DropdownUser: React.FC<DropdownUserProps> = ({
   nom,
   email,
-  telephone,
   role,
+  img,
 }) => {
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -82,11 +81,11 @@ const DropdownUser: React.FC<DropdownUserProps> = ({
           <span className="block text-xs"> {role}</span>
         </span>
 
-        <span className="h-12 w-12 rounded-full">
+        <span className="h-11 w-11 overflow-hidden rounded-full">
           <Image
             width={112}
             height={112}
-            src={"/images/user/user-01.png"}
+            src={img}
             style={{
               width: "auto",
               height: "auto",

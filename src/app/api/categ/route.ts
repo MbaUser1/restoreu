@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to fetch points de dépôt",
+        message: "Failed to fetch categorie",
         error: error.message,
       },
       { status: 500 },

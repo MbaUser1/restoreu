@@ -54,7 +54,7 @@ export async function POST(request) {
         data: {
           type: type,
           categorie: categ,
-          date: new Date(date),
+          date: date,
           arrondissement: arrond,
           lieu_de_depot: lieu,
           num_piece: npiece,

@@ -1,21 +1,21 @@
-"use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faTrash,
   faPencil,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import InvoiceStatus from "@/components/Datatable/status";
 import {
   formatDateToLocal,
   formatCurrency,
 } from "@/components/Datatable/utils";
 import Modal from "@/components/Modal/Modal";
+import Modal_modifier from "@/components/Modal/Modal_modifier";
 import Modal_delete from "@/components/Modal/Modal_delete";
-import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -35,15 +35,15 @@ export default function DataTable({
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedPId, setSelectedPId] = useState<string | null>(null);
-
+  const [piece, setPiece] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [piece, setPiece] = useState<string | null>(null);
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     async function fetchData() {
+      if (!selectedPId) return;
       try {
         const response = await fetch(`/api/piece?id=${selectedPId}`);
         const data = await response.json();
@@ -59,14 +59,12 @@ export default function DataTable({
         setLoading(false);
       }
     }
-    if (selectedPId) {
-      fetchData();
-    }
+    fetchData();
   }, [selectedPId]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, idP: string) => {
     try {
-      const response = await fetch(`/api/declarations?id=${id}`, {
+      const response = await fetch(`/api/declarations?id=${id}&idP=${idP}`, {
         method: "DELETE",
       });
 
@@ -75,36 +73,31 @@ export default function DataTable({
       }
       toast.success("Déclaration supprimée");
       setSelectedId(null);
+      setSelectedPId(null);
 
       router.push("/pieces/egarees");
     } catch (error) {
       toast.error("Oups, quelque chose s'est mal passé, essayez encore");
     }
   };
-  // const handleWiew = async (id: string) => {
-  //   try {
-  //     const response = await fetch(`/api/piece?id=${id}`, {
-  //       method: "GET",
-  //     });
-  //     const data = await response.json();
-  //     if (data.success) {
-  //       setPiece(data.data);
-  //     } else {
-  //       toast.error("Oups, quelque chose s'est mal passé");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Oups, quelque chose s'est mal passé, essayez encore");
-  //   }
-  // };
+
+  const filteredItems = items.filter((item) =>
+    Object.values(item).some(
+      (value) =>
+        typeof value === "string" &&
+        value.toLowerCase().includes(searchTerm.toLowerCase()),
+    ),
+  );
 
   return (
     <div className="mt-6 flow-root">
       <Modal piece={piece} />
-      <Modal_delete id={selectedId} onDelete={handleDelete} />
+      <Modal_modifier piece={piece} />
+      <Modal_delete id={selectedId} idP={selectedPId} onDelete={handleDelete} />
       <div className="inline-block min-w-full align-middle">
         <div className="bg-gray-50 rounded-lg p-2 md:pt-0">
           <div className="md:hidden">
-            {items?.map((item) => (
+            {filteredItems.map((item) => (
               <div
                 key={item.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
@@ -149,7 +142,6 @@ export default function DataTable({
                     )}
                   </div>
                   <div className="flex justify-end gap-2">
-                    {/* <SeeAll id={item.id} /> */}
                     <button
                       className="hover:bg-gray-100 rounded-md border p-2  text-success"
                       onClick={() => {
@@ -160,18 +152,24 @@ export default function DataTable({
                       <span className="sr-only">View</span>
                       <FontAwesomeIcon icon={faEye} className="w-5" />
                     </button>
-                    {/* <U^date id={item.id} /> */}
                     <Link
-                      href="/dashboard/invoices"
-                      className="hover:bg-gray-100 rounded-md border p-2"
+                      href={`/modification/egaree?pieceid=${item.PieceID}&Did=${item.id}`}
                     >
-                      <FontAwesomeIcon icon={faPencil} className="w-5" />
+                      <button
+                        className="hover:bg-gray-100 rounded-md border p-2  text-warning"
+                        onClick={() => {
+                          setSelectedPId(item.PieceId);
+                          document.getElementById("my_modal_m").showModal();
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faPencil} className="w-5" />
+                      </button>
                     </Link>
-                    {/* <Delete id={item.id} /> */}
                     <button
                       className="hover:bg-gray-100 rounded-md border p-2  text-danger"
                       onClick={() => {
                         setSelectedId(item.id);
+                        setSelectedPId(item.PieceID);
                         document.getElementById("my_modal_delete").showModal();
                       }}
                     >
@@ -201,7 +199,7 @@ export default function DataTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {items?.map((item) => (
+              {filteredItems.map((item) => (
                 <tr
                   key={item.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
@@ -235,7 +233,6 @@ export default function DataTable({
                   ))}
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {/* <SeeAll id={item.id} /> */}
                       <button
                         className="hover:bg-gray-100 rounded-md border p-2 text-success"
                         onClick={() => {
@@ -243,22 +240,27 @@ export default function DataTable({
                           document.getElementById("my_modal_2").showModal();
                         }}
                       >
-                        {item.pieceID}
                         <span className="sr-only">View</span>
                         <FontAwesomeIcon icon={faEye} className="w-5" />
                       </button>
-                      {/* <Update id={item.id} /> */}
                       <Link
-                        href="/dashboard/invoices"
-                        className="hover:bg-gray-100 rounded-md border p-2"
+                        href={`/modification/egaree?pieceid=${item.PieceID}&Did=${item.id}`}
                       >
-                        <FontAwesomeIcon icon={faPencil} className="w-5" />
+                        <button
+                          className="hover:bg-gray-100 rounded-md border p-2  text-warning"
+                          onClick={() => {
+                            setSelectedPId(item.PieceId);
+                            document.getElementById("my_modal_m").showModal();
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faPencil} className="w-5" />
+                        </button>
                       </Link>
-                      {/* <Delete id={item.id} /> */}
                       <button
                         className="hover:bg-gray-100 rounded-md border p-2  text-danger"
                         onClick={() => {
                           setSelectedId(item.id);
+                          setSelectedPId(item.PieceID);
                           document
                             .getElementById("my_modal_delete")
                             .showModal();

@@ -6,6 +6,8 @@ import Modal from "@/components/Modal/Modal";
 import Table from "@/components/Datatable/table";
 import { Create } from "@/components/Datatable/buttons";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const fields = [
   { key: "nom", label: "Nom" },
@@ -27,6 +29,8 @@ export default function Page({
 
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     async function fetchData() {
@@ -51,23 +55,29 @@ export default function Page({
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  return (
-    <>
-      <Breadcrumb pageName="Points de dépôts" />
-      <div className="w-full">
-        <div className="flex w-full items-center justify-between"></div>
-        <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-          <Search placeholder="Rechercher un point..." />
-          <Create label="Ajouter" href="ajout" />
-        </div>
+  if (status === "authenticated") {
+    const nom = session.user?.id;
 
-        <Table items={invoices} fields={fields} />
+    return (
+      <>
+        <Breadcrumb pageName="Points de dépôts" />
+        <div className="w-full">
+          <div className="flex w-full items-center justify-between"></div>
+          <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <Search placeholder="Rechercher un point..." />
+            <Create label="Ajouter" href="ajout" />
+          </div>
 
-        <div className="mt-5 flex w-full justify-center">
-          {/* <Pagination totalPages={totalPages} /> */}
+          <Table items={invoices} fields={fields} />
+
+          <div className="mt-5 flex w-full justify-center">
+            {/* <Pagination totalPages={totalPages} /> */}
+          </div>
+          <Modal />
         </div>
-        <Modal />
-      </div>
-    </>
-  );
+      </>
+    );
+  } else {
+    router.push("/");
+  }
 }

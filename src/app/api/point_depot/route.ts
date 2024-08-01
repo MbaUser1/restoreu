@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export async function GET(request: NextRequest) {
   try {
-    const pointsDeDepot = await db.Lieu_depot.findMany();
+    const pointsDeDepot = await db.lieu_depot.findMany();
     return NextResponse.json({
       success: true,
       data: pointsDeDepot,
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         message: "Failed to fetch points de dépôt",
-        error: error.message,
+        error: "error.message",
       },
       { status: 500 },
     );
@@ -69,13 +69,14 @@ export async function POST(request: Request) {
       data: {
         email,
         telephone,
+        image: null,
         motDePasseHache: hashedPassword,
         role,
       },
     });
     //creation du point de depot
     try {
-      const newPoint = await db.Lieu_depot.create({
+      const newPoint = await db.lieu_depot.create({
         data: {
           nom,
           arrondissement,

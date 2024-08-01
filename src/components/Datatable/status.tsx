@@ -9,20 +9,23 @@ export default function InvoiceStatus({ status }: { status: string }) {
       className={clsx(
         "inline-flex items-center rounded-full px-2 py-1 text-xs",
         {
-          "bg-gray-100 text-gray-500": status === "pending",
-          "bg-green-500 text-white": status === "paid",
+          "bg-red-100 text-gray-500": status === "n",
+          "bg-green-500 text-white": status === "o",
         },
       )}
     >
-      {status === "pending" ? (
+      {status === "n" ? (
         <>
-          Pending
-          <FontAwesomeIcon icon={faClock} className="text-gray-500 ml-1 w-4" />
+          <FontAwesomeIcon
+            icon={faClock}
+            className="text-gray-500 ml-1 w-4 pr-1"
+          />
+          En cours...
         </>
       ) : null}
-      {status === "paid" ? (
+      {status === "o" ? (
         <>
-          Paid
+          Trouvé
           <FontAwesomeIcon icon={faCheck} className="ml-1 w-4 text-white" />
         </>
       ) : null}

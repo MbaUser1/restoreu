@@ -24,19 +24,23 @@ const options = [
   { value: "permis de conduire c", label: "Permis C" },
   { value: "autres", label: "Autres" },
 ];
-const options2 = [
-  { value: "mifi", label: "Mifi" },
-  { value: "haut-plateau", label: "Haut-plateau" },
-  { value: "nde", label: "NDE" },
-  { value: "bamboutos", label: "Bamboutos" },
-  { value: "nkoung-nki", label: "Nkoung-nki" },
-  { value: "autres", label: "Autres" },
-];
+// const options2 = [
+//   { value: "Mifi", label: "Mifi" },
+//   { value: "Menoua", label: "Menoua" },
+//   { value: "Hauts-Plateaux", label: "Hauts-Plateaux" },
+//   { value: "Nde", label: "NDE" },
+//   { value: "Bamboutos", label: "Bamboutos" },
+//   { value: "Haut-Nkam", label: "Haut-Nkam" },
+//   { value: "Nkoung-Nki", label: "Nkoung-Nki" },
+//   { value: "Noun", label: "Noun" },
+// ];
 const Circonstances = [
   { value: "", label: "Veuillez selectionner" },
   { value: "Agression", label: "Agression" },
-  { value: "Neglicence", label: "Neglicence" },
   { value: "Accidents", label: "Accidents" },
+  { value: "Vol", label: "Vol" },
+  { value: "Neglicence", label: "Neglicence" },
+  { value: "Perte", label: "Perte" },
   { value: "RAS", label: "RAS" },
   { value: "autres", label: "Autres" },
 ];
@@ -68,6 +72,8 @@ const FormLayout = () => {
   } = useForm<Donnees>();
   const [loading, setLoading] = useState(false);
   const [categorie, setcategorie] = useState([]);
+  //infobule
+  const [showTooltip, setShowTooltip] = useState(false);
   const { data: session, status } = useSession();
 
   //recuperation des categories
@@ -80,10 +86,10 @@ const FormLayout = () => {
         if (data.success) {
           setcategorie(data.data);
         } else {
-          setError(data.message);
+          toast.error(data.message);
         }
       } catch (error) {
-        setError(error.message);
+        toast.error("Oups quelque chose c'est mal passée ....");
       }
     }
 
@@ -126,23 +132,41 @@ const FormLayout = () => {
 
   return (
     <div className="mt-auto">
-      <Breadcrumb pageName="Signaler" />
+      <Breadcrumb pageName="Signaler(Egaré)" />
       <div className="flex flex-col gap-9">
         <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-            <h3 className="font-medium text-black dark:text-white">
-              <Link href="egaree">
-                <button className="btn mr-2 rounded bg-danger px-4 py-2 text-white">
-                  Egarée
-                </button>
-              </Link>
-              <Link href="trouvee">
-                <button className="btn ml-2 rounded bg-success px-4 py-2 text-white">
-                  Trouvée
+            <h3 className="flex items-center justify-between font-medium text-black dark:text-white">
+              <div>
+                <Link href="egaree">
+                  <button className="btn mr-2 rounded bg-danger px-4 py-2 text-white">
+                    Egarée
+                  </button>
+                </Link>
+                <Link href="trouvee">
+                  <button className="btn rounded bg-success px-4 py-2 text-white">
+                    Trouvée
+                  </button>
+                </Link>
+              </div>
+              <Link href="/premium">
+                <button
+                  className="btn relative ml-2 rounded bg-gradient-to-r from-green-400 to-blue-500 px-4 py-2 text-white hover:from-green-500 hover:to-blue-600"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  title="Acceder au compte premium et beneficier de pleins d'avantage"
+                >
+                  Premium
+                  {showTooltip && (
+                    <span className="tooltip bg-gray-800 pointer-events-auto absolute left-1/2 -mt-8 -translate-x-1/2 transform whitespace-nowrap rounded p-1 text-xs text-white opacity-100 transition-opacity duration-300">
+                      Accédez aux fonctionnalités Premium
+                    </span>
+                  )}
                 </button>
               </Link>
             </h3>
           </div>
+
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="p-6.5">
               <div className="mb-2.5 flex flex-col gap-6 xl:flex-row">
@@ -192,7 +216,7 @@ const FormLayout = () => {
                     Où l avez-vous egaré ??{" "}
                     <span className="text-meta-1">*</span>
                   </label>
-                  <select
+                  {/* <select
                     {...register("arrondissement", {
                       required: "Ce champ est obligatoire",
                     })}
@@ -203,7 +227,13 @@ const FormLayout = () => {
                         {option.label}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
+                  <input
+                    {...register("arrondissement", {})}
+                    type="text" // Treat as string
+                    placeholder="Quartier ou endroit spécifique"
+                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-2.5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  />
                   {errors.arrondissement && (
                     <small className="text-sm text-rose-600">
                       {errors.arrondissement.message}

@@ -7,6 +7,10 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBox,
+  faMagic,
+  faFeather,
+  faShieldAlt,
+  faWrench,
   faCheck,
   faHouse,
   faSearch,
@@ -17,6 +21,7 @@ import {
 import { faBoxOpen } from "@fortawesome/free-solid-svg-icons/faBoxOpen";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons/faQuestionCircle";
 import SidebarLinkGroup from "./SidebarLinkGroup";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -70,8 +75,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
       document.querySelector("body")?.classList.remove("sidebar-expanded");
     }
   }, [sidebarExpanded]);
-  const handleSignOut = async () => {
-    await signOut(); // Appel de la fonction signOut pour déconnecter l'utilisateur
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const data = await signOut({ redirect: false, callbackUrl: "/" });
+    if (data.error) {
+      console.error("Déconnexion échouée :", data.error);
+    } else {
+      // Vérifie que le router est disponible avant de faire la redirection
+
+      router.push("/");
+      console.error("Déconnexion");
+    }
   };
 
   return (
@@ -84,9 +100,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
       {/* SIDEBAR HEADER */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <Link href="/signaler/egaree">
-          <button className="flex h-[48px] w-full items-center justify-center gap-2 rounded-full border-2  border-solid border-sky-500 p-8 ">
+          <button className="flex h-[48px] w-full items-center justify-center gap-2 rounded-full border-2  border-solid border-sky-500 px-5 py-8 ">
             <FontAwesomeIcon icon={faBox} className="text-white" />
-            <div className="text-white">Signaler une pièce</div>
+            <div className="text-white">Signaler un document</div>
           </button>
         </Link>
 
@@ -130,7 +146,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
                   <Link
                     href="/point_depot"
                     className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                      pathname.includes("/administrateur") &&
+                      pathname.includes("/point_depot") &&
                       "bg-graydark dark:bg-meta-4"
                     }`}
                   >
@@ -422,6 +438,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
               )}
               {/* <!-- Menu Item Forms --> */}
 
+              {role === "administrateur" && (
+                <li>
+                  <Link
+                    href="/autres"
+                    className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                      pathname.includes("/autres") &&
+                      "bg-graydark dark:bg-meta-4"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faWrench} />
+                    Autres
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link
                   href="/settings"
@@ -434,12 +464,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
                   Paramètres
                 </Link>
               </li>
+
               <li>
                 <button
                   className={
                     " group relative flex w-60 items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
                   }
-                  onClick={handleSignOut}
+                  onClick={handleLogout}
                 >
                   <FontAwesomeIcon
                     icon={faSignOutAlt}
@@ -452,17 +483,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, role }: SidebarProps) => {
           </div>
           <div>
             <h1 className="mb-4 text-sm font-semibold text-bodydark2">
-              BESOIN D AIDE
+              AIDE ?
             </h1>
 
             <ul className="mb-6 flex flex-col gap-1.5">
               {/* <!-- Menu Item Calendar --> */}
               <li>
                 <Link
-                  href="/calendar"
+                  href="/FAQs"
                   className={`group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("calendar") &&
-                    "bg-graydark dark:bg-meta-4"
+                    pathname.includes("/FAQs") && "bg-graydark dark:bg-meta-4"
                   }`}
                 >
                   <FontAwesomeIcon icon={faQuestionCircle} />

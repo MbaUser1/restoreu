@@ -2,16 +2,19 @@
 import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Search from "@/components/Datatable/search";
+// import Table from "@/components/Datatable/table1";
 import Table from "@/components/Datatable/table";
 import { Create } from "@/components/Datatable/buttons";
+import { InvoicesTableSkeleton } from "@/components/Datatable/skeletons";
 import { useSession } from "next-auth/react";
+import { Suspense } from "react";
 
 const fields = [
-  { key: "#", label: "#" },
   { key: "categorie", label: "Categories" },
-  { key: "arrondissement", label: "Arrondissement" },
+  { key: "arrondissement", label: "Lieux" },
   { key: "date", label: "Date", isDate: true },
   { key: "circonstance", label: "Circonstance" },
+  { key: "deposer", label: "Recherche", isStatus: true },
 ];
 
 export default function Page({
@@ -19,13 +22,13 @@ export default function Page({
 }: {
   searchParams?: { query?: string; page?: string };
 }) {
+  const query = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page) || 1;
+
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
-
-  const query = searchParams?.query || "";
-  const currentPage = Number(searchParams?.page) || 1;
 
   useEffect(() => {
     async function fetchData() {
@@ -61,9 +64,13 @@ export default function Page({
           <Search placeholder="Rechercher un point..." />
           <Create label="Ajouter" href="/signaler/egaree" />
         </div>
-
-        <Table items={invoices} fields={fields} />
-
+        <Suspense
+          key={query + currentPage}
+          fallback={<InvoicesTableSkeleton />}
+        >
+          <Table items={invoices} fields={fields} />
+          {/* <Table query={query} currentPage={currentPage} /> */}
+        </Suspense>
         <div className="mt-5 flex w-full justify-center">
           {/* <Pagination totalPages={totalPages} /> */}
         </div>

@@ -3,6 +3,7 @@ import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import db from "@/lib/db";
+import { handlers} from "@src/lib/auth";
 // import { UserRole } from "@prisma/client";
 
 interface Credentials {
@@ -68,7 +69,6 @@ export const authOptions: NextAuthOptions = {
           const user = {
             id: existingUser.id,
             nom: existingUser.nom,
-            prenom: existingUser.prenom,
             email: existingUser.email,
             telephone: existingUser.telephone,
             role: existingUser.role,
@@ -93,7 +93,6 @@ export const authOptions: NextAuthOptions = {
         }
         session.user.id = token.id as string;
         session.user.nom = token.nom as string;
-        session.user.prenom = token.prenom as string;
         session.user.email = token.email as string;
         session.user.telephone = token.telephone as string;
         session.user.role = token.role as string;
@@ -107,7 +106,6 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.nom = user.nom;
-        token.prenom = user.prenom;
         token.email = user.email;
         token.telephone = user.telephone;
         token.role = user.role;
@@ -119,6 +117,7 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-const handler = NextAuth(authOptions);
+// const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+// export { handler as GET, handler as POST };
+export{GET, POST} = handlers;
